@@ -17,16 +17,23 @@ function increment_view_count($postID)
 
 add_action('wp_head', function () {
     echo '<div class="notice notice-success is-dismissible">
-    <p>🌟</p>
+    <p>page view counter 🌟</p>
     </div>';
-
     if (is_single()) {
         increment_view_count(get_the_ID());
     }
 });
 
 add_shortcode('view_count', function ($atts) {
+
+    $atts = shortcode_atts(array(
+        'prefix'=> 'این نوشته',
+        'suffix'=> ' بازدید داشته است .',
+    ) , $atts);
+
     $postID = get_the_ID();
     $views = get_post_meta($postID, 'view_count', true) ?? 0;
-    return "این نوشته $views بازدید داشته است.";
+
+    return $atts['prefix'] . " $views " . $atts['suffix'];
+
 });
