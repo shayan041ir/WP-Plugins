@@ -7,11 +7,13 @@ Author: Shayan Rezaei
 */
 
 add_action('admin_notices', function() {
-    echo '<div class="notice notice-success is-dismissible"><p>پلاگین من فعال است!</p></div>';
+    echo '<div class="notice notice-success is-dismissible">
+        <p>سلام! خوش اومدی به داشبورد مدیریت وردپرس 🌟</p>
+    </div>';
 });
 
-
-add_shortcode('my_message', function() {
-    return "سلام دنیا از پلاگین من!";
+add_shortcode('current_datetime', function(){
+    return date('Y-m-d H:i:s');
 });
+
 
