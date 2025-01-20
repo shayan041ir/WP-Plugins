@@ -7,10 +7,9 @@ Author: Shayan Rezaei
 */
 
 
-add_filter ('the_content', function ($content){
-    if(is_single())
-    {
-            $form = '
+add_filter('the_content', function ($content) {
+    if (is_page('محصول')) { // بررسی نامک (slug) برگه
+        $form = '
             <form id="rating-form" method="post">
                 <label for="rating">امتیاز خود را ثبت کنید:</label>
                 <select name="rating" id="rating">
@@ -24,7 +23,9 @@ add_filter ('the_content', function ($content){
             </form>
             <div id="rating-message"></div>
         ';
-        return $content . $form; // اضافه کردن فرم به محتوای نوشته
+        $average_rating = do_shortcode('[average_rating]');
+
+        return $content . $form . '<br>' . $average_rating; // اضافه کردن فرم به محتوای برگه
     }
     return $content;
 });
@@ -44,6 +45,7 @@ add_action('wp_enqueue_scripts', function () {
     wp_localize_script('rating-script', 'ratingAjax', [
         'ajax_url' => admin_url('admin-ajax.php'),
         'nonce' => wp_create_nonce('rating_nonce'),
+        'post_id' => get_the_ID(), // شناسه پست جاری
     ]);
 });
 
@@ -56,8 +58,9 @@ function save_rating() {
     // بررسی nonce برای امنیت
     check_ajax_referer('rating_nonce', 'nonce');
 
-    $postID = intval($_POST['post_id']);
-    $rating = intval($_POST['rating']);
+    // دریافت و اعتبارسنجی مقادیر
+    $postID = isset($_POST['post_id']) ? intval($_POST['post_id']) : 0;
+    $rating = isset($_POST['rating']) ? intval($_POST['rating']) : 0;
 
     if ($postID && $rating >= 1 && $rating <= 5) {
         // گرفتن مقادیر قبلی
@@ -75,7 +78,7 @@ function save_rating() {
 
         wp_send_json_success(['message' => "امتیاز شما ثبت شد! میانگین امتیاز: $average_rating"]);
     } else {
-        wp_send_json_error(['message' => 'امتیاز نامعتبر است.']);
+        wp_send_json_error(['message' => 'امتیاز نامعتبر است.'.$postID]);
     }
 }
 
@@ -85,6 +88,7 @@ add_shortcode('average_rating', function ($atts) {
     $postID = get_the_ID();
     $ratings_count = get_post_meta($postID, 'ratings_count', true) ?: 0;
     $ratings_total = get_post_meta($postID, 'ratings_total', true) ?: 0;
+    
     
     if ($ratings_count > 0) {
         $average_rating = round($ratings_total / $ratings_count, 2);
