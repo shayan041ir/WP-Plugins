@@ -76,7 +76,7 @@ function save_rating() {
 
         $average_rating = round($ratings_total / $ratings_count, 2);
 
-        wp_send_json_success(['message' => "امتیاز شما ثبت شد! میانگین امتیاز: $average_rating"]);
+        // wp_send_json_success(['message' => "امتیاز شما ثبت شد! میانگین امتیاز: $average_rating"]);
     } else {
         wp_send_json_error(['message' => 'امتیاز نامعتبر است.'.$postID]);
     }
