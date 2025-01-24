@@ -52,7 +52,6 @@ function register_courses_post_type()
     register_post_type('courses', $args);   //slug مسیر url این نوع محتوا در  courses است
 
 }
-
 add_action('init', 'register_courses_post_type');
 
 
@@ -85,5 +84,69 @@ function register_course_taxonomy(){
     register_taxonomy('course_category','courses', $args);
 
 }
-
 add_action('init','register_course_taxonomy');
+
+
+
+// ثبت Shortcode برای نمایش لیست دوره‌ها
+function display_courses_with_categories($atts) {
+    // دریافت دسته‌بندی از شورتکد (اختیاری)
+    $atts = shortcode_atts(array(
+        'category' => '', // می‌توان یک دسته خاص را فیلتر کرد
+    ), $atts, 'courses_list');
+
+    $args = array(
+        'post_type'      => 'courses',
+        'posts_per_page' => -1, // نمایش همه دوره‌ها
+        'orderby'        => 'title',
+        'order'          => 'ASC',
+    );
+
+    // اگر دسته‌بندی مشخص شده باشد، فیلتر اضافه کن
+    if (!empty($atts['category'])) {
+        $args['tax_query'] = array(
+            array(
+                'taxonomy' => 'course_category',
+                'field'    => 'slug',
+                'terms'    => $atts['category'],
+            ),
+        );
+    }
+
+    $query = new WP_Query($args);
+
+    if ($query->have_posts()) {
+        $output = '<div class="courses-list">';
+
+        while ($query->have_posts()) {
+            $query->the_post();
+
+            // دریافت دسته‌بندی‌ها
+            $categories = get_the_terms(get_the_ID(), 'course_category');
+            $category_list = '';
+            if (!empty($categories)) {
+                $category_list = '<ul class="course-categories">';
+                foreach ($categories as $category) {
+                    $category_list .= '<li>' . esc_html($category->name) . '</li>';
+                }
+                $category_list .= '</ul>';
+            }
+
+            // نمایش دوره
+            $output .= '<div class="course-item">';
+            $output .= '<h3>' . get_the_title() . '</h3>';
+            // $output .= $category_list;   //نام فیلتر دسته بندی ها 
+            // $output .= '<p>' . get_the_excerpt() . '</p>';   //محتوا    
+            $output .= '<a href="' . get_permalink() . '">مشاهده جزئیات</a>';
+            $output .= '</div>';
+        }
+
+        $output .= '</div>';
+        wp_reset_postdata();
+    } else {
+        $output = '<p>دوره‌ای یافت نشد.</p>';
+    }
+
+    return $output;
+}
+add_shortcode('courses_list', 'display_courses_with_categories');
