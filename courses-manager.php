@@ -133,20 +133,31 @@ function display_courses_with_categories($atts) {
             }
 
             // نمایش دوره
+            //برای خروجی امن، از توابعی مانند esc_html() یا wp_kses_post() استفاده کنید:
             $output .= '<div class="course-item">';
-            $output .= '<h3>' . get_the_title() . '</h3>';
+            $output .= '<h3>' . esc_html(get_the_title()) . '</h3>';
             // $output .= $category_list;   //نام فیلتر دسته بندی ها 
-            // $output .= '<p>' . get_the_excerpt() . '</p>';   //محتوا    
+            // $output .= '<p>' . wp_kses_post(get_the_excerpt()) . '</p>';   //محتوا    
             $output .= '<a href="' . get_permalink() . '">مشاهده جزئیات</a>';
             $output .= '</div>';
         }
 
         $output .= '</div>';
-        wp_reset_postdata();
     } else {
         $output = '<p>دوره‌ای یافت نشد.</p>';
     }
+    wp_reset_postdata();
 
     return $output;
 }
 add_shortcode('courses_list', 'display_courses_with_categories');
+
+
+
+add_filter('the_content', function ($content) {
+    if (is_page('دوره ها')) { // بررسی نامک (slug) برگه
+        $courses = do_shortcode('[courses_list]');
+        $content .= $courses;    
+    }
+    return $content; // اضافه کردن فرم به محتوای برگه
+});
