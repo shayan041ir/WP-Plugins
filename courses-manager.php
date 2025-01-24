@@ -8,6 +8,9 @@ Author: Shayan Rezaei
 */
 
 // ثبت Custom Post Type برای دوره‌های آموزشی
+
+use function ElementorDeps\DI\add;
+
 function register_courses_post_type()
 {
     //شامل متن‌هایی است که برای بخش مدیریت وردپرس نمایش داده می‌شوند.
@@ -32,7 +35,7 @@ function register_courses_post_type()
     $args = array(
         'labels'             => $labels,
         'public'             => true,   //عمومی بودن را نشان میدهد
-        'publicly_queryable' => true,   
+        'publicly_queryable' => true,
         'show_ui'            => true,
         'show_in_menu'       => true,
         'query_var'          => true,
@@ -51,3 +54,36 @@ function register_courses_post_type()
 }
 
 add_action('init', 'register_courses_post_type');
+
+
+// ثبت Taxonomy برای دسته‌بندی دوره‌ها
+function register_course_taxonomy(){
+    $labels = array(
+        'name'              => 'دسته‌بندی دوره‌ها',
+        'singular_name'     => 'دسته‌بندی دوره',
+        'search_items'      => 'جستجوی دسته‌ها',
+        'all_items'         => 'همه دسته‌ها',
+        'parent_item'       => 'دسته والد',
+        'parent_item_colon' => 'دسته والد:',
+        'edit_item'         => 'ویرایش دسته',
+        'update_item'       => 'بروزرسانی دسته',
+        'add_new_item'      => 'افزودن دسته جدید',
+        'new_item_name'     => 'نام دسته جدید',
+        'menu_name'         => 'دسته‌بندی‌ها',
+    );
+    $args = array(
+        //اگر مقدار آن true باشد، Taxonomy مثل دسته‌بندی عمل می‌کند (سلسله مراتبی). اگر false باشد، مثل برچسب عمل می‌کند.
+        'hierarchical'      => true, // دسته‌بندی‌ها به صورت سلسله مراتبی باشند (مانند دسته‌ها)
+        'labels'            => $labels,
+        'show_ui'           => true,
+        'show_admin_column' => true,    //اضافه کردن ستون دسته‌بندی در لیست دوره‌ها در مدیریت وردپرس.
+        'query_var'         => true,
+        'rewrite'           => array('slug' => 'course-category'),  //تعیین Slug برای URL دسته‌بندی‌ها (در اینجا course-category).
+    );
+    
+    //این تابع برای تعریف یک Taxonomy جدید استفاده می‌شود
+    register_taxonomy('course_category','courses', $args);
+
+}
+
+add_action('init','register_course_taxonomy');
