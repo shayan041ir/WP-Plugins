@@ -56,7 +56,8 @@ add_action('init', 'register_courses_post_type');
 
 
 // ثبت Taxonomy برای دسته‌بندی دوره‌ها
-function register_course_taxonomy(){
+function register_course_taxonomy()
+{
     $labels = array(
         'name'              => 'دسته‌بندی دوره‌ها',
         'singular_name'     => 'دسته‌بندی دوره',
@@ -79,17 +80,17 @@ function register_course_taxonomy(){
         'query_var'         => true,
         'rewrite'           => array('slug' => 'course-category'),  //تعیین Slug برای URL دسته‌بندی‌ها (در اینجا course-category).
     );
-    
-    //این تابع برای تعریف یک Taxonomy جدید استفاده می‌شود
-    register_taxonomy('course_category','courses', $args);
 
+    //این تابع برای تعریف یک Taxonomy جدید استفاده می‌شود
+    register_taxonomy('course_category', 'courses', $args);
 }
-add_action('init','register_course_taxonomy');
+add_action('init', 'register_course_taxonomy');
 
 
 
 // ثبت Shortcode برای نمایش لیست دوره‌ها
-function display_courses_with_categories($atts) {
+function display_courses_with_categories($atts)
+{
     // دریافت دسته‌بندی از شورتکد (اختیاری)
     $atts = shortcode_atts(array(
         'category' => '', // می‌توان یک دسته خاص را فیلتر کرد
@@ -154,10 +155,12 @@ add_shortcode('courses_list', 'display_courses_with_categories');
 
 
 
-add_filter('the_content', function ($content) {
-    if (is_page('دوره ها')) { // بررسی نامک (slug) برگه
-        $courses = do_shortcode('[courses_list]');
-        $content .= $courses;    
-    }
-    return $content; // اضافه کردن فرم به محتوای برگه
-});
+// add_filter('the_content', function ($content) {
+//     if (is_page('دوره ها')) { // بررسی نامک (slug) برگه
+//         $courses = do_shortcode('[courses_list]');
+//         $content .= $courses;    
+//     }
+//     return $content; // اضافه کردن فرم به محتوای برگه
+// });
+
+include "function.php";
