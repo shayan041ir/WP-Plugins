@@ -163,4 +163,3 @@ add_shortcode('courses_list', 'display_courses_with_categories');
 //     return $content; // اضافه کردن فرم به محتوای برگه
 // });
 
-include "function.php";
