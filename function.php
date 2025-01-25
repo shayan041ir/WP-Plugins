@@ -1,18 +1,11 @@
 <?php
-/*
-Plugin Name: ّFilter for Courses
-Description: مدیریت دوره‌های آموزشی با Custom Post Types.
-Version: 1.0
-Author: Shayan Rezaei
-*/
-
 
 // نمایش فرم فیلتر دسته‌بندی‌ها و لیست دوره‌ها
 add_shortcode('dynamic_course_filter', function () {
     // دریافت دسته‌بندی‌های مربوط به دوره‌ها
     $categories = get_terms(array(
-        'taxonomy'   => 'course_category',
-        'hide_empty' => true,
+        'taxonomy'   => 'course_category',      // تاکسونومی مربوط به دسته‌بندی دوره‌ها
+        'hide_empty' => true,                   // نمایش فقط دسته‌بندی‌هایی که دارای نوشته هستند
     ));
 
     if (is_wp_error($categories) || empty($categories)) {
@@ -43,12 +36,12 @@ add_shortcode('dynamic_course_filter', function () {
     <!-- اسکریپت AJAX -->
     <script>
         document.getElementById('category-select').addEventListener('change', function() {
-        const category = this.value;
-        const nonce = document.getElementById('course_nonce').value;
+        const category = this.value;    // مقدار دسته‌بندی انتخاب‌شده
+        const nonce = document.getElementById('course_nonce').value;    // مقدار nonce برای امنیت
         const data = new FormData();
-        data.append('action', 'filter_courses');
+        data.append('action', 'filter_courses');    // اکشن موردنظر در وردپرس
         data.append('category', encodeURIComponent(category)); // Encoding دسته‌بندی
-        data.append('course_nonce', nonce);
+        data.append('course_nonce', nonce);     // nonce
 
         console.log('Sending AJAX request with category:', category);
 
@@ -56,10 +49,10 @@ add_shortcode('dynamic_course_filter', function () {
                 method: 'POST',
                 body: data,
             })
-            .then((response) => response.text())
+            .then((response) => response.text())        // پاسخ به صورت متن
             .then((data) => {
                 console.log('Received response:', data); // دیباگ پاسخ
-                document.getElementById('courses-container').innerHTML = data;
+                document.getElementById('courses-container').innerHTML = data;      // جایگزینی لیست دوره‌ها
             })
             .catch((error) => console.error('AJAX error:', error));
         });
@@ -79,22 +72,22 @@ function filter_courses()
         wp_die();
     }
 
-    // دریافت دسته‌بندی و decode آن
+    // دریافت دسته‌بندی و unldecode
     $category = isset($_POST['category']) ? urldecode(sanitize_text_field($_POST['category'])) : '';
 
     $args = array(
-        'post_type'      => 'courses',
-        'posts_per_page' => -1,
-        'orderby'        => 'title',
-        'order'          => 'ASC',
+        'post_type'      => 'courses', // نوع نوشته
+        'posts_per_page' => -1,        // دریافت همه پست‌ها
+        'orderby'        => 'title',  // مرتب‌سازی بر اساس عنوان
+        'order'          => 'ASC',    // به ترتیب صعودی
     );
 
     if (!empty($category)) {
         $args['tax_query'] = array(
             array(
-                'taxonomy' => 'course_category',
-                'field'    => 'slug',
-                'terms'    => $category,
+                'taxonomy' => 'course_category', // تاکسونومی دسته‌بندی
+                'field'    => 'slug',           // جستجو بر اساس slug
+                'terms'    => $category,        // مقدار دسته‌بندی انتخاب‌شده
             ),
         );
     }

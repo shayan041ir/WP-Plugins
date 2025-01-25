@@ -95,6 +95,7 @@ function display_courses_with_categories($atts)
     $atts = shortcode_atts(array(
         'category' => '', // می‌توان یک دسته خاص را فیلتر کرد
     ), $atts, 'courses_list');
+    $atts['category'] = sanitize_text_field($atts['category']);
 
     $args = array(
         'post_type'      => 'courses',
@@ -139,7 +140,7 @@ function display_courses_with_categories($atts)
             $output .= '<h3>' . esc_html(get_the_title()) . '</h3>';
             // $output .= $category_list;   //نام فیلتر دسته بندی ها 
             // $output .= '<p>' . wp_kses_post(get_the_excerpt()) . '</p>';   //محتوا    
-            $output .= '<a href="' . get_permalink() . '">مشاهده جزئیات</a>';
+            $output .= '<a href="' . esc_url(get_permalink()) . '">مشاهده جزئیات</a>';
             $output .= '</div>';
         }
 
@@ -154,7 +155,6 @@ function display_courses_with_categories($atts)
 add_shortcode('courses_list', 'display_courses_with_categories');
 
 
-
 // add_filter('the_content', function ($content) {
 //     if (is_page('دوره ها')) { // بررسی نامک (slug) برگه
 //         $courses = do_shortcode('[courses_list]');
@@ -163,3 +163,4 @@ add_shortcode('courses_list', 'display_courses_with_categories');
 //     return $content; // اضافه کردن فرم به محتوای برگه
 // });
 
+include "function.php";
