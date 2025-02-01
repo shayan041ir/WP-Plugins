@@ -74,11 +74,11 @@ function register_course_taxonomy() {
 }
 add_action('init', 'register_course_taxonomy');
 
-// ثبت Shortcode برای نمایش لیست دوره‌ها با Pagination
+// ثبت Shortcode برای نمایش لیست دوره‌ها با فیلتر دسته‌بندی
 function display_courses_with_categories($atts) {
     $atts = shortcode_atts(array(
-        'category' => '',
-        'per_page' => 5, // تعداد دوره‌ها در هر صفحه
+        'category' => '', // دسته‌بندی انتخاب‌شده
+        'per_page' => 5,  // تعداد دوره‌ها در هر صفحه
     ), $atts, 'courses_list');
 
     $paged = get_query_var('paged') ? get_query_var('paged') : 1;
@@ -91,6 +91,7 @@ function display_courses_with_categories($atts) {
         'order'          => 'ASC',
     );
 
+    // اگر دسته‌بندی انتخاب شده باشد
     if (!empty($atts['category'])) {
         $args['tax_query'] = array(
             array(
@@ -136,11 +137,3 @@ add_shortcode('courses_list', 'display_courses_with_categories');
 
 // اضافه کردن فایل function.php
 include "function.php";
-
-// add_filter('the_content', function ($content) {
-//     if (is_page('دوره ها')) { // بررسی نامک (slug) برگه
-//         $courses = do_shortcode('[courses_list]');
-//         $content .= $courses;    
-//     }
-//     return $content; // اضافه کردن فرم به محتوای برگه
-// });
