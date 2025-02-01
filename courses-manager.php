@@ -1,5 +1,4 @@
 <?php
-
 /*
 Plugin Name: Courses Manager
 Description: مدیریت دوره‌های آموزشی با Custom Post Types.
@@ -8,12 +7,7 @@ Author: Shayan Rezaei
 */
 
 // ثبت Custom Post Type برای دوره‌های آموزشی
-
-use function ElementorDeps\DI\add;
-
-function register_courses_post_type()
-{
-    //شامل متن‌هایی است که برای بخش مدیریت وردپرس نمایش داده می‌شوند.
+function register_courses_post_type() {
     $labels = array(
         'name'               => 'دوره‌های آموزشی',
         'singular_name'      => 'دوره آموزشی',
@@ -31,33 +25,28 @@ function register_courses_post_type()
         'not_found_in_trash' => 'هیچ دوره‌ای در زباله‌دان یافت نشد.',
     );
 
-    // تنظیمات اصلی Custom Post Type
     $args = array(
         'labels'             => $labels,
-        'public'             => true,   //عمومی بودن را نشان میدهد
+        'public'             => true,
         'publicly_queryable' => true,
         'show_ui'            => true,
         'show_in_menu'       => true,
         'query_var'          => true,
         'rewrite'            => array('slug' => 'courses'),
         'capability_type'    => 'post',
-        'has_archive'        => true,   //فعال سازی ارشیو برای این نوع محتوا
+        'has_archive'        => true,
         'hierarchical'       => false,
         'menu_position'      => 5,
-        'menu_icon'          => 'dashicons-welcome-learn-more', // آیکون منو
-        'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),  // تعیین می‌کند که این محتوا چه امکاناتی داشته باشد (مثل عنوان، محتوا، تصویر شاخص و ...).
+        'menu_icon'          => 'dashicons-welcome-learn-more',
+        'supports'           => array('title', 'editor', 'thumbnail', 'excerpt', 'custom-fields'),
     );
 
-    //تعریف یک نوع محتوای جدید
-    register_post_type('courses', $args);   //slug مسیر url این نوع محتوا در  courses است
-
+    register_post_type('courses', $args);
 }
 add_action('init', 'register_courses_post_type');
 
-
 // ثبت Taxonomy برای دسته‌بندی دوره‌ها
-function register_course_taxonomy()
-{
+function register_course_taxonomy() {
     $labels = array(
         'name'              => 'دسته‌بندی دوره‌ها',
         'singular_name'     => 'دسته‌بندی دوره',
@@ -71,89 +60,82 @@ function register_course_taxonomy()
         'new_item_name'     => 'نام دسته جدید',
         'menu_name'         => 'دسته‌بندی‌ها',
     );
+
     $args = array(
-        //اگر مقدار آن true باشد، Taxonomy مثل دسته‌بندی عمل می‌کند (سلسله مراتبی). اگر false باشد، مثل برچسب عمل می‌کند.
-        'hierarchical'      => true, // دسته‌بندی‌ها به صورت سلسله مراتبی باشند (مانند دسته‌ها)
+        'hierarchical'      => true,
         'labels'            => $labels,
         'show_ui'           => true,
-        'show_admin_column' => true,    //اضافه کردن ستون دسته‌بندی در لیست دوره‌ها در مدیریت وردپرس.
+        'show_admin_column' => true,
         'query_var'         => true,
-        'rewrite'           => array('slug' => 'course-category'),  //تعیین Slug برای URL دسته‌بندی‌ها (در اینجا course-category).
+        'rewrite'           => array('slug' => 'course-category'),
     );
 
-    //این تابع برای تعریف یک Taxonomy جدید استفاده می‌شود
     register_taxonomy('course_category', 'courses', $args);
 }
 add_action('init', 'register_course_taxonomy');
 
-
-
-// ثبت Shortcode برای نمایش لیست دوره‌ها
-function display_courses_with_categories($atts)
-{
-    // دریافت دسته‌بندی از شورتکد (اختیاری)
+// ثبت Shortcode برای نمایش لیست دوره‌ها با Pagination
+function display_courses_with_categories($atts) {
     $atts = shortcode_atts(array(
-        'category' => '', // می‌توان یک دسته خاص را فیلتر کرد
+        'category' => '',
+        'per_page' => 5, // تعداد دوره‌ها در هر صفحه
     ), $atts, 'courses_list');
-    $atts['category'] = sanitize_text_field($atts['category']);
+
+    $paged = get_query_var('paged') ? get_query_var('paged') : 1;
 
     $args = array(
         'post_type'      => 'courses',
-        'posts_per_page' => -1, // نمایش همه دوره‌ها
+        'posts_per_page' => intval($atts['per_page']),
+        'paged'          => $paged,
         'orderby'        => 'title',
         'order'          => 'ASC',
     );
 
-    // اگر دسته‌بندی مشخص شده باشد، فیلتر اضافه کن
     if (!empty($atts['category'])) {
         $args['tax_query'] = array(
             array(
                 'taxonomy' => 'course_category',
                 'field'    => 'slug',
-                'terms'    => $atts['category'],
+                'terms'    => sanitize_text_field($atts['category']),
             ),
         );
     }
 
     $query = new WP_Query($args);
 
-    if ($query->have_posts()) {
-        $output = '<div class="courses-list">';
+    ob_start();
 
+    if ($query->have_posts()) {
+        echo '<div class="courses-list">';
         while ($query->have_posts()) {
             $query->the_post();
-
-            // دریافت دسته‌بندی‌ها
-            $categories = get_the_terms(get_the_ID(), 'course_category');
-            $category_list = '';
-            if (!empty($categories)) {
-                $category_list = '<ul class="course-categories">';
-                foreach ($categories as $category) {
-                    $category_list .= '<li>' . esc_html($category->name) . '</li>';
-                }
-                $category_list .= '</ul>';
-            }
-
-            // نمایش دوره
-            //برای خروجی امن، از توابعی مانند esc_html() یا wp_kses_post() استفاده کنید:
-            $output .= '<div class="course-item">';
-            $output .= '<h3>' . esc_html(get_the_title()) . '</h3>';
-            // $output .= $category_list;   //نام فیلتر دسته بندی ها 
-            // $output .= '<p>' . wp_kses_post(get_the_excerpt()) . '</p>';   //محتوا    
-            $output .= '<a href="' . esc_url(get_permalink()) . '">مشاهده جزئیات</a>';
-            $output .= '</div>';
+            echo '<div class="course-item">';
+            echo '<h3>' . esc_html(get_the_title()) . '</h3>';
+            echo '<a href="' . esc_url(get_permalink()) . '">مشاهده جزئیات</a>';
+            echo '</div>';
         }
+        echo '</div>';
 
-        $output .= '</div>';
+        // Pagination
+        echo '<div class="courses-pagination">';
+        echo paginate_links(array(
+            'total'     => $query->max_num_pages,
+            'current'   => $paged,
+            'prev_text' => 'قبلی',
+            'next_text' => 'بعدی',
+        ));
+        echo '</div>';
     } else {
-        $output = '<p>دوره‌ای یافت نشد.</p>';
+        echo '<p>دوره‌ای یافت نشد.</p>';
     }
-    wp_reset_postdata();
 
-    return $output;
+    wp_reset_postdata();
+    return ob_get_clean();
 }
 add_shortcode('courses_list', 'display_courses_with_categories');
 
+// اضافه کردن فایل function.php
+include "function.php";
 
 // add_filter('the_content', function ($content) {
 //     if (is_page('دوره ها')) { // بررسی نامک (slug) برگه
@@ -162,5 +144,3 @@ add_shortcode('courses_list', 'display_courses_with_categories');
 //     }
 //     return $content; // اضافه کردن فرم به محتوای برگه
 // });
-
-include "function.php";

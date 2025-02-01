@@ -1,11 +1,21 @@
 <?php
+// اضافه کردن اسکریپت‌ها و استایل‌ها
+function enqueue_courses_scripts() {
+    wp_enqueue_style('courses-style', plugins_url('css/courses-style.css', __FILE__));
+    wp_enqueue_script('courses-script', plugins_url('js/courses-script.js', __FILE__), array('jquery'), null, true);
+
+    wp_localize_script('courses-script', 'courses_ajax', array(
+        'ajax_url' => admin_url('admin-ajax.php'),
+        'nonce'    => wp_create_nonce('filter_courses_nonce'),
+    ));
+}
+add_action('wp_enqueue_scripts', 'enqueue_courses_scripts');
 
 // نمایش فرم فیلتر دسته‌بندی‌ها و لیست دوره‌ها
 add_shortcode('dynamic_course_filter', function () {
-    // دریافت دسته‌بندی‌های مربوط به دوره‌ها
     $categories = get_terms(array(
-        'taxonomy'   => 'course_category',      // تاکسونومی مربوط به دسته‌بندی دوره‌ها
-        'hide_empty' => true,                   // نمایش فقط دسته‌بندی‌هایی که دارای نوشته هستند
+        'taxonomy'   => 'course_category',
+        'hide_empty' => true,
     ));
 
     if (is_wp_error($categories) || empty($categories)) {
@@ -14,9 +24,7 @@ add_shortcode('dynamic_course_filter', function () {
 
     ob_start(); ?>
     <div id="course-filter">
-        <!-- فرم انتخاب دسته‌بندی -->
         <form id="category-filter-form">
-            <?php wp_nonce_field('filter_courses_nonce', 'course_nonce'); ?>
             <select name="category" id="category-select">
                 <option value="">همه دسته‌بندی‌ها</option>
                 <?php foreach ($categories as $category): ?>
@@ -27,67 +35,41 @@ add_shortcode('dynamic_course_filter', function () {
             </select>
         </form>
 
-        <!-- بخش نمایش دوره‌ها -->
         <div id="courses-container">
             <?php echo do_shortcode('[courses_list]'); ?>
         </div>
     </div>
-
-    <!-- اسکریپت AJAX -->
-    <script>
-        document.getElementById('category-select').addEventListener('change', function() {
-        const category = this.value;    // مقدار دسته‌بندی انتخاب‌شده
-        const nonce = document.getElementById('course_nonce').value;    // مقدار nonce برای امنیت
-        const data = new FormData();
-        data.append('action', 'filter_courses');    // اکشن موردنظر در وردپرس
-        data.append('category', encodeURIComponent(category)); // Encoding دسته‌بندی
-        data.append('course_nonce', nonce);     // nonce
-
-        console.log('Sending AJAX request with category:', category);
-
-        fetch('<?php echo admin_url('admin-ajax.php'); ?>', {
-                method: 'POST',
-                body: data,
-            })
-            .then((response) => response.text())        // پاسخ به صورت متن
-            .then((data) => {
-                console.log('Received response:', data); // دیباگ پاسخ
-                document.getElementById('courses-container').innerHTML = data;      // جایگزینی لیست دوره‌ها
-            })
-            .catch((error) => console.error('AJAX error:', error));
-        });
-    </script>
-<?php
+    <?php
     return ob_get_clean();
 });
 
+// اکشن‌های AJAX
 add_action('wp_ajax_filter_courses', 'filter_courses');
 add_action('wp_ajax_nopriv_filter_courses', 'filter_courses');
 
-function filter_courses()
-{
-    // بررسی nonce برای امنیت
-    if (!isset($_POST['course_nonce']) || !wp_verify_nonce($_POST['course_nonce'], 'filter_courses_nonce')) {
+function filter_courses() {
+    if (!isset($_POST['nonce']) || !wp_verify_nonce($_POST['nonce'], 'filter_courses_nonce')) {
         echo '<p>درخواست نامعتبر است.</p>';
         wp_die();
     }
 
-    // دریافت دسته‌بندی و unldecode
     $category = isset($_POST['category']) ? urldecode(sanitize_text_field($_POST['category'])) : '';
+    $page     = isset($_POST['page']) ? intval($_POST['page']) : 1;
 
     $args = array(
-        'post_type'      => 'courses', // نوع نوشته
-        'posts_per_page' => -1,        // دریافت همه پست‌ها
-        'orderby'        => 'title',  // مرتب‌سازی بر اساس عنوان
-        'order'          => 'ASC',    // به ترتیب صعودی
+        'post_type'      => 'courses',
+        'posts_per_page' => 5,
+        'paged'          => $page,
+        'orderby'        => 'title',
+        'order'          => 'ASC',
     );
 
     if (!empty($category)) {
         $args['tax_query'] = array(
             array(
-                'taxonomy' => 'course_category', // تاکسونومی دسته‌بندی
-                'field'    => 'slug',           // جستجو بر اساس slug
-                'terms'    => $category,        // مقدار دسته‌بندی انتخاب‌شده
+                'taxonomy' => 'course_category',
+                'field'    => 'slug',
+                'terms'    => $category,
             ),
         );
     }
@@ -102,10 +84,19 @@ function filter_courses()
             echo '<a href="' . esc_url(get_permalink()) . '">مشاهده جزئیات</a>';
             echo '</div>';
         }
-        wp_reset_postdata();
+
+        echo '<div class="courses-pagination">';
+        echo paginate_links(array(
+            'total'     => $query->max_num_pages,
+            'current'   => $page,
+            'prev_text' => 'قبلی',
+            'next_text' => 'بعدی',
+        ));
+        echo '</div>';
     } else {
         echo '<p>دوره‌ای یافت نشد.</p>';
     }
 
+    wp_reset_postdata();
     wp_die();
 }

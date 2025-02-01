@@ -1,0 +1,49 @@
+#course-filter {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+#category-filter-form {
+    margin-bottom: 20px;
+}
+
+#category-select {
+    padding: 10px;
+    font-size: 16px;
+}
+
+.courses-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 20px;
+}
+
+.course-item {
+    border: 1px solid #ddd;
+    padding: 20px;
+    border-radius: 8px;
+    background: #f9f9f9;
+}
+
+.course-item h3 {
+    margin-top: 0;
+}
+
+.courses-pagination {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.courses-pagination a {
+    padding: 10px 15px;
+    margin: 0 5px;
+    background: #0073aa;
+    color: #fff;
+    text-decoration: none;
+    border-radius: 4px;
+}
+
+.courses-pagination a:hover {
+    background: #005177;
+}
