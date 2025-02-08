@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class My_Keyword_Plugin_API_Handler {
 
     private $api_key;
-    private $api_url = 'https://api.openai.com/v1/chat/completions';
+    private $api_url = 'http://localhost:1337/v1';
 
     public function __construct() {
         $this->api_key = get_option( 'my_keyword_plugin_api_key', '' );
