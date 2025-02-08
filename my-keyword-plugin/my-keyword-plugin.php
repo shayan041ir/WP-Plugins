@@ -4,8 +4,7 @@
  * Plugin URI: https://example.com
  * Description: افزونه‌ای برای انجام Keyword Research با استفاده از API چت‌جی‌پی‌تی.
  * Version: 1.0.0
- * Author: نام شما
- * Author URI: https://example.com
+ * Author: shayan rezayi
  * License: GPL2
  */
 
