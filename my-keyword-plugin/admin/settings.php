@@ -9,13 +9,14 @@ function my_keyword_plugin_add_admin_menu() {
         'Keyword Research', 
         'manage_options', 
         'my-keyword-plugin', 
-        'my_keyword_plugin_settings_page'
+        'my_keyword_plugin_settings_page',
+        'dashicons-admin-generic'
     );
 }
 add_action( 'admin_menu', 'my_keyword_plugin_add_admin_menu' );
 
 function my_keyword_plugin_settings_page() {
-    // بررسی و ذخیره تنظیمات در صورت ارسال فرم
+    // ذخیره تنظیمات در صورت ارسال فرم
     if ( isset( $_POST['submit'] ) && check_admin_referer( 'my_keyword_plugin_settings' ) ) {
         $api_key = sanitize_text_field( $_POST['openai_api_key'] );
         update_option( 'my_keyword_plugin_api_key', $api_key );

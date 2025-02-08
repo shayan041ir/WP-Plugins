@@ -1,0 +1,38 @@
+#keyword-research-form {
+    margin: 20px 0;
+}
+
+#keyword-research-form label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+}
+
+#keyword-research-form input[type="text"] {
+    width: 100%;
+    max-width: 400px;
+    padding: 8px;
+    margin-bottom: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+}
+
+#keyword-research-form button {
+    padding: 8px 16px;
+    background-color: #0073aa;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+#keyword-research-form button:hover {
+    background-color: #006799;
+}
+
+#keyword-research-result {
+    margin-top: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    background: #f9f9f9;
+}

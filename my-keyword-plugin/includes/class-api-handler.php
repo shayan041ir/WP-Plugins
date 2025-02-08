@@ -18,7 +18,7 @@ class My_Keyword_Plugin_API_Handler {
         }
 
         $body = array(
-            'model'    => 'gpt-3.5-turbo',  // یا مدلی که می‌خواهی استفاده کنی
+            'model'    => 'gpt-3.5-turbo', // یا مدلی که ترجیح می‌دهید
             'messages' => array(
                 array( 'role' => 'system', 'content' => 'You are a helpful assistant specialized in SEO keyword research.' ),
                 array( 'role' => 'user', 'content' => $prompt )
@@ -46,7 +46,7 @@ class My_Keyword_Plugin_API_Handler {
         $response_body = wp_remote_retrieve_body( $response );
 
         if ( $response_code !== 200 ) {
-            return new WP_Error( 'api_error', 'خطایی در ارتباط با API رخ داده است.' );
+            return new WP_Error( 'api_error', 'خطایی در ارتباط با API رخ داده است. کد خطا: ' . $response_code );
         }
 
         $data = json_decode( $response_body, true );
