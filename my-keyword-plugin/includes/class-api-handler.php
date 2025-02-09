@@ -6,7 +6,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 class My_Keyword_Plugin_API_Handler {
 
     private $api_key;
-    private $api_url = 'http://localhost:1337/v1';
+    private $api_url = 'http://localhost:1337/v1/chat/completions';
 
     public function __construct() {
         $this->api_key = get_option( 'my_keyword_plugin_api_key', '' );
@@ -18,7 +18,7 @@ class My_Keyword_Plugin_API_Handler {
         }
 
         $body = array(
-            'model'    => 'gpt-3.5-turbo', // یا مدلی که ترجیح می‌دهید
+            'model'    => 'gpt-4o', // یا مدلی که ترجیح می‌دهید
             'messages' => array(
                 array( 'role' => 'system', 'content' => 'You are a helpful assistant specialized in SEO keyword research.' ),
                 array( 'role' => 'user', 'content' => $prompt )
