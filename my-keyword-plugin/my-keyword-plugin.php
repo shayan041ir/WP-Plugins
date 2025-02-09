@@ -1,7 +1,6 @@
 <?php
 /**
  * Plugin Name: My Keyword Research Plugin
- * Plugin URI: https://example.com
  * Description: افزونه‌ای برای انجام Keyword Research با استفاده از API چت‌جی‌پی‌تی.
  * Version: 1.0.0
  * Author: shayan rezayi
