@@ -136,4 +136,4 @@ function display_courses_with_categories($atts) {
 add_shortcode('courses_list', 'display_courses_with_categories');
 
 // اضافه کردن فایل function.php
-include "function.php";
+include "includes/function.php";
