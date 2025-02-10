@@ -1,48 +1,32 @@
-jQuery(document).ready(function ($) {
-    $('#category-select').on('change', function () {
-        const category = $(this).val();
-        const page = 1;
-
-        console.log('Sending AJAX request...'); // دیباگ
-
-        $.ajax({
+//// filepath: /c:/xampp/htdocs/wordpress/wp-content/plugins/js/courses-script.js
+jQuery(document).ready(function($){
+    // رویداد تغییر در select دسته‌بندی
+    $('#category-select').on('change', function(e){
+         e.preventDefault();
+         var category = $(this).val();
+         
+         $.ajax({
             url: courses_ajax.ajax_url,
             type: 'POST',
             data: {
-                action: 'filter_courses',
-                category: category,
-                page: page,
-                nonce: courses_ajax.nonce,
+                 action: 'filter_courses',
+                 nonce: courses_ajax.nonce,
+                 category: category,
+                 page: 1
             },
-            success: function (response) {
-                console.log('AJAX response:', response); // دیباگ
-                $('#courses-container').html(response);
+            beforeSend: function(){
+                 $('#courses-container').html('<p>در حال بارگذاری...</p>');
             },
-            error: function (error) {
-                console.error('AJAX error:', error);
+            success: function(response){
+                 if ( response.success ) {
+                      $('#courses-container').html(response.data.html);
+                 } else {
+                      $('#courses-container').html('<p>خطا در دریافت داده‌ها.</p>');
+                 }
             },
-        });
-    });
-
-    $(document).on('click', '.courses-pagination a', function (e) {
-        e.preventDefault();
-        const page = $(this).attr('href').match(/paged=(\d+)/)[1];
-
-        $.ajax({
-            url: courses_ajax.ajax_url,
-            type: 'POST',
-            data: {
-                action: 'filter_courses',
-                category: $('#category-select').val(),
-                page: page,
-                nonce: courses_ajax.nonce,
-            },
-            success: function (response) {
-                $('#courses-container').html(response);
-            },
-            error: function (error) {
-                console.error('AJAX error:', error);
-            },
-        });
+            error: function(){
+                 $('#courses-container').html('<p>خطا در برقراری ارتباط.</p>');
+            }
+         });
     });
 });

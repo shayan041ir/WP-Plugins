@@ -1,12 +1,12 @@
 <?php
 /*
 Plugin Name: Courses Manager
-Description: مدیریت دوره‌های آموزشی با Custom Post Types.
-Version: 1.0
+Description: مدیریت دوره‌های آموزشی با Custom Post Types و AJAX فیلتر کردن دوره‌ها.
+Version: 1.1
 Author: Shayan Rezaei
 */
 
-// ثبت Custom Post Type برای دوره‌های آموزشی
+// ثبت Custom Post Type: courses
 function register_courses_post_type() {
     $labels = array(
         'name'               => 'دوره‌های آموزشی',
@@ -45,7 +45,7 @@ function register_courses_post_type() {
 }
 add_action('init', 'register_courses_post_type');
 
-// ثبت Taxonomy برای دسته‌بندی دوره‌ها
+// ثبت Taxonomy: course_category
 function register_course_taxonomy() {
     $labels = array(
         'name'              => 'دسته‌بندی دوره‌ها',
@@ -74,10 +74,10 @@ function register_course_taxonomy() {
 }
 add_action('init', 'register_course_taxonomy');
 
-// ثبت Shortcode برای نمایش لیست دوره‌ها با فیلتر دسته‌بندی
+// ثبت شورتکد جهت نمایش لیست دوره‌ها با امکان فیلتر کردن بر اساس دسته‌بندی
 function display_courses_with_categories($atts) {
     $atts = shortcode_atts(array(
-        'category' => '', // دسته‌بندی انتخاب‌شده
+        'category' => '', // دسته‌بندی انتخاب‌شده (در صورت ارسال توسط AJAX یا پارامتر شورتکد)
         'per_page' => 5,  // تعداد دوره‌ها در هر صفحه
     ), $atts, 'courses_list');
 
@@ -89,9 +89,9 @@ function display_courses_with_categories($atts) {
         'paged'          => $paged,
         'orderby'        => 'title',
         'order'          => 'ASC',
+        'post_status'    => 'publish'
     );
 
-    // اگر دسته‌بندی انتخاب شده باشد
     if (!empty($atts['category'])) {
         $args['tax_query'] = array(
             array(
@@ -101,7 +101,7 @@ function display_courses_with_categories($atts) {
             ),
         );
     }
-
+    
     $query = new WP_Query($args);
 
     ob_start();
@@ -135,5 +135,6 @@ function display_courses_with_categories($atts) {
 }
 add_shortcode('courses_list', 'display_courses_with_categories');
 
-// اضافه کردن فایل function.php
+// فراخوانی فایل‌های اضافی شامل enqueue اسکریپت‌ها و AJAX handler
 include "includes/function.php";
+?>
