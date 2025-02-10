@@ -4,7 +4,6 @@
  * Description: افزونه‌ای برای انجام Keyword Research با استفاده از API چت‌جی‌پی‌تی.
  * Version: 1.0.0
  * Author: shayan rezayi
- * License: GPL2
  */
 
 if ( ! defined( 'ABSPATH' ) ) {

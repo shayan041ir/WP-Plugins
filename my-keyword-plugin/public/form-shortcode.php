@@ -11,7 +11,6 @@ function my_keyword_plugin_form_shortcode() {
         <?php wp_nonce_field( 'my_keyword_plugin_nonce', 'my_keyword_plugin_nonce_field' ); ?>
         <label for="seed_keyword">کلمه کلیدی اولیه:</label>
         <input type="text" name="seed_keyword" id="seed_keyword" required>
-        <!-- در صورت نیاز می‌توانید فیلدهای دیگری نیز اضافه کنید -->
         <button type="submit">شروع تحقیق</button>
     </form>
     <div id="keyword-research-result"></div>
