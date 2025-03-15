@@ -5,18 +5,62 @@ Description: پلاگینی برای گرفتن اطلاعات از فرم و ا
 Version: 1.0
 Author: shayan rezayi
 */
-function my_form_shortcode() {
-    return '<form method="post" action="">
-                <label for="name">username:</label>
-                <input type="text" name="name" id="name" required>
-                <label for="email">password:</label>
-                <input type="password" name="password" id="password" required>
-                <input type="submit" value="send">
-            </form>';
+
+function my_form_shortcode()
+{
+
+    return '
+    <style>
+        #my-contact-form {
+            max-width: 400px;
+            margin: 0 auto;
+        }
+
+        #my-contact-form label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        #my-contact-form input,
+        #my-contact-form textarea {
+            width: 100%;
+            padding: 5px;
+            margin-top: 5px;
+        }
+
+        #my-contact-form button {
+            padding: 5px 10px;
+            margin-top: 10px;
+            background-color: #0073aa;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+        }
+
+        #response-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 5px;
+        }
+    </style>
+
+
+    <form id="my-contact-form" action="" method="post">
+            <label for="name">username:</label>
+            <input type="text" id="name" name="name" required>
+    
+            <label for="password">password:</label>
+            <input type="password" id="password" name="password" required>
+        
+            <input type="hidden" name="action" value="my_contact_form">
+            <button type="submit">send</button>
+            <div id="response-message"></div>
+        </form>';
 }
 add_shortcode('my_form', 'my_form_shortcode');
 
-function process_my_form() {
+function process_my_form()
+{
     if (isset($_POST['name']) && isset($_POST['password'])) {
         $username = $_POST['name'];
         $password = $_POST['password'];
@@ -63,7 +107,8 @@ function process_my_form() {
 add_action('wp_enqueue_scripts', 'process_my_form');
 
 
-function create_form_data_table() {
+function create_form_data_table()
+{
     global $wpdb;
     $table_name = $wpdb->prefix . 'form_data'; // نام جدول با پیشوند wp_
     $charset_collate = $wpdb->get_charset_collate();
@@ -76,10 +121,7 @@ function create_form_data_table() {
         PRIMARY KEY  (id)
     ) $charset_collate;";
 
-    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    dbDelta( $sql );
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
 }
-register_activation_hook( __FILE__, 'create_form_data_table' );
-
-
-
+register_activation_hook(__FILE__, 'create_form_data_table');
