@@ -6,6 +6,26 @@ Version: 1.0
 Author: shayan rezayi
 */
 
+function create_form_data_table()
+{
+    global $wpdb;
+    $table_name = $wpdb->prefix . 'form_data'; // نام جدول با پیشوند wp_
+    $charset_collate = $wpdb->get_charset_collate();
+
+    $sql = "CREATE TABLE $table_name (
+        id mediumint(9) NOT NULL AUTO_INCREMENT,
+        name varchar(100) NOT NULL,
+        password varchar(100) NOT NULL,
+        submission_time datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
+        PRIMARY KEY  (id)
+    ) $charset_collate;";
+
+    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
+    dbDelta($sql);
+}
+register_activation_hook(__FILE__, 'create_form_data_table');
+
+
 function my_form_shortcode()
 {
 
@@ -105,23 +125,3 @@ function process_my_form()
     }
 }
 add_action('wp_enqueue_scripts', 'process_my_form');
-
-
-function create_form_data_table()
-{
-    global $wpdb;
-    $table_name = $wpdb->prefix . 'form_data'; // نام جدول با پیشوند wp_
-    $charset_collate = $wpdb->get_charset_collate();
-
-    $sql = "CREATE TABLE $table_name (
-        id mediumint(9) NOT NULL AUTO_INCREMENT,
-        name varchar(100) NOT NULL,
-        password varchar(100) NOT NULL,
-        submission_time datetime DEFAULT CURRENT_TIMESTAMP NOT NULL,
-        PRIMARY KEY  (id)
-    ) $charset_collate;";
-
-    require_once(ABSPATH . 'wp-admin/includes/upgrade.php');
-    dbDelta($sql);
-}
-register_activation_hook(__FILE__, 'create_form_data_table');
